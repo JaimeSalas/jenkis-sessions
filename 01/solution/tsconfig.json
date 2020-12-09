@@ -9,7 +9,7 @@
     "removeComments": false,
     "noImplicitAny": false,
     "outDir": "./app",
-    "rootDir": "solution/src",
+    "rootDir": "./src",
     "esModuleInterop": true
   },
   "exclude": ["node_modules", "typings"]
