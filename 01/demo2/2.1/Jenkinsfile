@@ -5,7 +5,9 @@ pipeline {
     agent any
     stages {
         stage('Audit tools') {
-            auditTools()
+            steps {
+                auditTools()
+            }
         }
     }
 }
