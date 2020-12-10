@@ -1,0 +1,54 @@
+library identifier: 'jenkins-library-sessions@master',
+        retriever: modernSCM([$class: 'GitSCMSource', remote: 'https://github.com/JaimeSalas/jenkins-library-sessions.git'])
+
+
+pipeline {
+    agent any
+    parameters {
+        booleanParam(name: 'RC', defaultValue: false, description: 'Is thid a Release Candidate?')
+    }
+    environment {
+        VERSION = sh([ script: 'cd ./01/solution && npm run env | grep "npm_package_version"', returnStdout: true ]).trim()
+        VERSION_RC = "rc.2"
+    }
+
+    stages {
+        stage('Audit tools') {
+            steps {
+                auditTools()
+            }
+        }
+        
+        stage('Build') {
+            environment {
+                VERSION_SUFFIX = getVersionSuffix rcNumber: env.VERSION_RC, isReleaseCandidate: params.RC
+            }
+            steps {
+                dir('./01/solution') {
+                    echo "Building version ${VERSION} with suffix: ${VERSION_SUFFIX}"
+                    sh '''
+                        npm install
+                        npm run build
+                    '''
+                }
+            }
+        }
+
+        stage('Unit Test') {
+            steps {
+                dir('./01/solution') {
+                    sh 'npm test'
+                }
+            }
+        }
+
+        stage('Publish') {
+            when {
+                expression { return params.RC }
+            }
+            steps {
+                archiveArtifacts('01/solution/app/')
+            }
+        }
+    }
+}
