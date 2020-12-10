@@ -1,10 +1,10 @@
 pipeline {
     agent {
-        docker {
+        dockerfile {
             dir '02/solution'
         }
     }
-    
+
     stages {
         stage('Verify') {
             steps {
